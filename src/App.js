@@ -1,25 +1,57 @@
-import logo from './logo.svg';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react'
 import './App.css';
+import { Provider } from 'react-redux'
+import store from './redux/store'
+import UserContainer from './components/userConatiner';
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+import { ProductDetails } from './components/ProductDetails';
+import axios from 'axios'
 
-function App() {
+
+
+
+const App = () => {
+
+  const [post, setPost] = useState([])
+  const fetchData = async () => {
+
+    await axios.get('https://fakestoreapi.com/products')
+      .then(response => {
+        const alldata = response.data
+        setPost(alldata)
+        console.log(post)
+      })
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, [])
+
+  const ProductWithId = ({ match }) => {
+    return (
+
+      <ProductDetails match={match} post={post} />
+
+    )
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <div className="App">
+        <BrowserRouter>
+          <Switch>
+            <Route exact path='/products' component={UserContainer} />
+            <Route path='/products/:id' component={ProductWithId} />
+            <Redirect to='/products' />
+          </Switch>
+
+        </BrowserRouter>
+
+      </div>
+    </Provider>
   );
 }
+
 
 export default App;
